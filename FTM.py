@@ -68,12 +68,14 @@ dfMeteo = dfMeteo.set_index('Datetime')
 
 #format = "%d%m%Y"
 #times = pd.to_datetime(dfMeteo['dag'] + dfMeteo['maand'] + dfMeteo['jaar'], format=format)
-#print times
+#print times #print was alleen om de zaak te testen
 
 #dfMeteo['date'] = dt.datetime(dfMeteo['jaar'],dfMeteo['maand'],dfMeteo['dag'])
 #print leesmeteo('METEO669.TXT') #bestandsextensies zijn case-senSiTive
-print dfMeteo
-print dfMeteo.info()
+#print dfMeteo #print was alleen om de zaak te testen
+print dfMeteo.info() #print is alleen om de zaak te testen
+
+#demonstratie hoe je een array maakt
 #arraypiet = dfMeteo['neerslag'].values
 #print arraypiet
 
@@ -81,22 +83,24 @@ pd.DataFrame.plot(dfMeteo, kind='line')
 ax = pylab.gca()
 ax.set_ylabel('$mm/dag$')
 
+pylab.savefig('Neerslag+verdamping.png', bbox_inches='tight')
 # without the line below, the figure won't show
 pylab.show()
 
+
 dfMeteo_out = pd.Series(dfMeteo.neerslag-dfMeteo.verdamping)
 #dfMeteo_out['neerslagoverschot']=dfMeteo.neerslag-dfMeteo.verdamping
-print dfMeteo_out
+#print dfMeteo_out #print was alleen om de zaak te testen
 meteobestand_uit = 'Meteo_out.csv'
 dfMeteo_out.to_csv(meteobestand_uit,  index=True, sep=',', header=True)
 
 array_neerslagoverschot = dfMeteo_out.values
-print array_neerslagoverschot
+#print array_neerslagoverschot #print was alleen om de zaak te testen
 #print dfMeteo.neerslagoverschot
 
 bodembestand = 'Bodemdata.txt'
 dfBodem=pd.read_csv(bodembestand, header=None, delimiter =',', names = ['#runn', 'al', 'hgem', 'drainw', 'berg', 'qbot' ]) #names = ['#runn', 'al', 'hgem', 'drainw', 'berg', 'qbot' ]
-print dfBodem
+#print dfBodem #print was alleen om de zaak te testen
 
 array_drainweerstand = dfBodem['drainw'].values
 array_hgem = dfBodem['hgem'].values
@@ -126,5 +130,6 @@ pd.Series.plot(dfGWS, kind='line')
 ax = pylab.gca()
 ax.set_ylabel('$cm-mv$')
 
+pylab.savefig('Grondwaterstanden.png', bbox_inches='tight')
 # without the line below, the figure won't show
 pylab.show()
