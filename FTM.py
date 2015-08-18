@@ -9,6 +9,7 @@ import matplotlib.pyplot as plt
 import pylab
 import datetime
 import matplotlib.dates as mdates
+import datetime as dt
 
 #functiedefinitie meteogegevens inladen
 def leesmeteo(meteobestand):
@@ -49,7 +50,26 @@ print gws_op_t(delta(1.0, 0.2), 125.0, 130.0, omega(1.0, 0.1, 0.2), 2.0)
     #return dfMeteo_uit
 
 #hier begint dan het programma
-print leesmeteo('METEO669.TXT') #bestandsextensies zijn case-senSiTive
+
+meteobestand='METEO669.TXT'
+
+dfMeteo=pd.read_fwf(meteobestand, widths=[14,14,14,14,14], header = None, names = ['dag', 'maand' , 'jaar' ,'neerslag' , 'verdamping'], parse_dates={"Datetime" : [0,1,2]})
+dfMeteo = dfMeteo.set_index('Datetime')
+#dfMeteo['dt'] = pd.to_datetime(dfMeteo.jaar+dfMeteo.maand+dfMeteo.dag,format='%Y%m%d')
+#dfMeteo['dt3'] = dfMeteo.dt + dfMeteo.dt2
+
+#format = "%d%m%Y"
+#times = pd.to_datetime(dfMeteo['dag'] + dfMeteo['maand'] + dfMeteo['jaar'], format=format)
+#print times
+
+#dfMeteo['date'] = dt.datetime(dfMeteo['jaar'],dfMeteo['maand'],dfMeteo['dag'])
+#print leesmeteo('METEO669.TXT') #bestandsextensies zijn case-senSiTive
+print dfMeteo
+print dfMeteo.info()
+
+pd.DataFrame.plot(dfMeteo, kind='line')
+# without the line below, the figure won't show
+pylab.show()
 
 #dfMeteo.neerslagoverschot=dfMeteo.neerslag-dfMeteo.verdamping
 #print dfMeteo.neerslagoverschot
