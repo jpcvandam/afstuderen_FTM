@@ -116,13 +116,13 @@ array_grondwaterstand = gws_op_t(array_bergingscoefficient, array_drainweerstand
 
 
 
-print array_grondwaterstand
+#print array_grondwaterstand #print was alleen om de zaak te testen
 
 dates = pd.date_range('19700101', periods=11323)
 
 
 dfGWS = pd.Series(array_grondwaterstand, index=dates)
-print dfGWS
+#print dfGWS #print was alleen om de zaak te testen
 GWSbestand_uit = 'GWS_out.csv'
 #GWSdates=dfMeteo['Dag'].combineAdd(dfGWS)
 dfGWS.to_csv(GWSbestand_uit,  index=True, sep=',', header=None)
