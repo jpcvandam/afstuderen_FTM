@@ -46,7 +46,11 @@ def cw(drainageweerstand, qbot, hgem):
 
 def gws_op_t(bergingscoefficient, drainageweerstand, ht_dt,  qbot, hgem, Pt) :
     ht = cw(drainageweerstand, qbot, hgem) + delta(bergingscoefficient, drainageweerstand) * (ht_dt - cw(drainageweerstand, qbot, hgem)) + omega(drainageweerstand, bergingscoefficient) * Pt
-    return(ht)
+    if ht<0:
+        return(ht)
+    else:
+        return 0
+    #return(ht)
 
 
 def bovenmaaiveld(grondwaterstand):
@@ -117,10 +121,9 @@ array_grondwaterstand = np.zeros(shape = (11323), order='C')
 #print array_grondwaterstand #print was alleen om de zaak te test
 for i in range(1,len(array_grondwaterstand)):
      array_grondwaterstand[i] = gws_op_t(array_bergingscoefficient[0], array_drainweerstand[0], array_grondwaterstand[i-1], array_qbot[0], array_hgem[0], array_neerslagoverschot[i])
-#itemindex = np.where(array_grondwaterstand==value)
-#array_grondwaterstand = gws_op_t(array_bergingscoefficient, array_drainweerstand, array_grondwaterstand[filter(lambda x : x-1 =>0, itemindex)], array_qbot, array_hgem, array_neerslagoverschot)
-for i in range(1,len(array_grondwaterstand)):
-    array_grondwaterstand[i]=bovenmaaiveld(array_grondwaterstand[i])
+
+#for i in range(1,len(array_grondwaterstand)):
+#   array_grondwaterstand[i]=bovenmaaiveld(array_grondwaterstand[i])
 
 #print array_grondwaterstand #print was alleen om de zaak te testen
 
