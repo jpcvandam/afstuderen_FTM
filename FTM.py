@@ -49,6 +49,13 @@ def gws_op_t(bergingscoefficient, drainageweerstand, ht_dt,  qbot, hgem, Pt) :
     return(ht)
 
 
+def bovenmaaiveld(grondwaterstand):
+    if grondwaterstand<0:
+        return grondwaterstand
+    else:
+        return 0
+
+
 #print omega(1.0, 0.1, 0.2)
 #print delta(1.0, 0.2)
 #print gws_op_t(delta(1.0, 0.2), 125.0, 130.0, omega(1.0, 0.1, 0.2), 2.0)
@@ -65,29 +72,24 @@ meteobestand='METEO669.TXT'
 
 dfMeteo=pd.read_fwf(meteobestand, widths=[14,14,14,14,14], header = None, names = ['dag', 'maand' , 'jaar' ,'neerslag' , 'verdamping'], parse_dates={"Datetime" : [0,1,2]})
 dfMeteo = dfMeteo.set_index('Datetime')
-#dfMeteo['dt'] = pd.to_datetime(dfMeteo.jaar+dfMeteo.maand+dfMeteo.dag,format='%Y%m%d')
-#dfMeteo['dt3'] = dfMeteo.dt + dfMeteo.dt2
 
-#format = "%d%m%Y"
-#times = pd.to_datetime(dfMeteo['dag'] + dfMeteo['maand'] + dfMeteo['jaar'], format=format)
-#print times #print was alleen om de zaak te testen
 
-#dfMeteo['date'] = dt.datetime(dfMeteo['jaar'],dfMeteo['maand'],dfMeteo['dag'])
-#print leesmeteo('METEO669.TXT') #bestandsextensies zijn case-senSiTive
 #print dfMeteo #print was alleen om de zaak te testen
-print dfMeteo.info() #print is alleen om de zaak te testen
+#print dfMeteo.info() #print is alleen om de zaak te testen
+aantal_regels = dfMeteo.count(axis=0)
+print aantal_regels
 
 #demonstratie hoe je een array maakt
 #arraypiet = dfMeteo['neerslag'].values
 #print arraypiet
 
-pd.DataFrame.plot(dfMeteo, kind='line')
-ax = pylab.gca()
-ax.set_ylabel('$mm/dag$')
+#pd.DataFrame.plot(dfMeteo, kind='line')
+#ax = pylab.gca()
+#ax.set_ylabel('$mm/dag$')
 
-pylab.savefig('Neerslag+verdamping.png', bbox_inches='tight')
+#pylab.savefig('Neerslag+verdamping.png', bbox_inches='tight')
 # without the line below, the figure won't show
-pylab.show()
+#pylab.show()
 
 
 dfMeteo_out = pd.Series(dfMeteo.neerslag-dfMeteo.verdamping)
@@ -112,21 +114,20 @@ array_qbot = dfBodem['qbot'].values
 
 
 array_grondwaterstand = np.zeros(shape = (11323), order='C')
-print array_grondwaterstand
+#print array_grondwaterstand #print was alleen om de zaak te test
 for i in range(1,len(array_grondwaterstand)):
      array_grondwaterstand[i] = gws_op_t(array_bergingscoefficient[0], array_drainweerstand[0], array_grondwaterstand[i-1], array_qbot[0], array_hgem[0], array_neerslagoverschot[i])
 #itemindex = np.where(array_grondwaterstand==value)
 #array_grondwaterstand = gws_op_t(array_bergingscoefficient, array_drainweerstand, array_grondwaterstand[filter(lambda x : x-1 =>0, itemindex)], array_qbot, array_hgem, array_neerslagoverschot)
-
-
+for i in range(1,len(array_grondwaterstand)):
+    array_grondwaterstand[i]=bovenmaaiveld(array_grondwaterstand[i])
 
 #print array_grondwaterstand #print was alleen om de zaak te testen
 
 dates = pd.date_range('19700101', periods=11323)
-
-
 dfGWS = pd.Series(array_grondwaterstand, index=dates)
 #print dfGWS #print was alleen om de zaak te testen
+
 GWSbestand_uit = 'GWS_out.csv'
 #GWSdates=dfMeteo['Dag'].combineAdd(dfGWS)
 dfGWS.to_csv(GWSbestand_uit,  index=True, sep=',', header=None)
