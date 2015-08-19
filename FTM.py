@@ -10,6 +10,7 @@ import pylab
 import datetime
 import matplotlib.dates as mdates
 import datetime as dt
+from numpy.numarray.functions import value
 
 #functiedefinitie meteogegevens inladen
 def leesmeteo(meteobestand):
@@ -46,6 +47,7 @@ def cw(drainageweerstand, qbot, hgem):
 def gws_op_t(bergingscoefficient, drainageweerstand, ht_dt,  qbot, hgem, Pt) :
     ht = cw(drainageweerstand, qbot, hgem) + delta(bergingscoefficient, drainageweerstand) * (ht_dt - cw(drainageweerstand, qbot, hgem)) + omega(drainageweerstand, bergingscoefficient) * Pt
     return(ht)
+
 
 #print omega(1.0, 0.1, 0.2)
 #print delta(1.0, 0.2)
@@ -108,11 +110,13 @@ array_bergingscoefficient = dfBodem['berg'].values
 array_qbot = dfBodem['qbot'].values
 #hgem', 'drainw', 'berg', 'qbot
 
-#b = np.ndenumerate(array_grondwaterstand)
-#for position,value in b: print position-1,value # position is the N-dimensional index
-ht=0
 
-array_grondwaterstand = gws_op_t(array_bergingscoefficient, array_drainweerstand, ht, array_qbot, array_hgem, array_neerslagoverschot)
+array_grondwaterstand = np.zeros(shape = (11323), order='C')
+print array_grondwaterstand
+for i in range(1,len(array_grondwaterstand)):
+     array_grondwaterstand[i] = gws_op_t(array_bergingscoefficient[0], array_drainweerstand[0], array_grondwaterstand[i-1], array_qbot[0], array_hgem[0], array_neerslagoverschot[i])
+#itemindex = np.where(array_grondwaterstand==value)
+#array_grondwaterstand = gws_op_t(array_bergingscoefficient, array_drainweerstand, array_grondwaterstand[filter(lambda x : x-1 =>0, itemindex)], array_qbot, array_hgem, array_neerslagoverschot)
 
 
 
