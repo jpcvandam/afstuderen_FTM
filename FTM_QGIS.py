@@ -34,27 +34,23 @@ def gws_op_t(bergingscoefficient, drainageweerstand, ht_dt,  qbot, hgem, Pt) :
         return ht
     else:
         return 0
+   
     
+bestandspad= '/home/john/Documenten/FTM/HyGis/QGIS/'   
+meteobestand='METEO669.TXT'
 
-meteobestand='/home/john/Documenten/FTM/HyGis/QGIS/METEO669.TXT'
-
-dfMeteo=pd.read_fwf(meteobestand, widths=[14,14,14,14,14], header = None, names = ['dag', 'maand' , 'jaar' ,'neerslag' , 'verdamping'], parse_dates={"Datetime" : [0,1,2]})
+dfMeteo=pd.read_fwf(bestandspad+meteobestand, widths=[14,14,14,14,14], header = None, names = ['dag', 'maand' , 'jaar' ,'neerslag' , 'verdamping'], parse_dates={"Datetime" : [0,1,2]})
 dfMeteo = dfMeteo.set_index('Datetime')
 dfMeteo_out = pd.Series(dfMeteo.neerslag-dfMeteo.verdamping)
 #dfMeteo_out['neerslagoverschot']=dfMeteo.neerslag-dfMeteo.verdamping
 #print dfMeteo_out #print was alleen om de zaak te testen
 meteobestand_uit = 'Meteo_out.csv'
 dfMeteo_out.to_csv(meteobestand_uit,  index=True, sep=',', header=True)
-
 array_neerslagoverschot = dfMeteo_out.values
-#haal bodemdata
-#haal meteo
-#doe daar iets mee
 
-output_file = open('/home/john/Documenten/FTM/HyGis/QGIS/Bodemdata.txt', 'w')
-#line = '%s\n' % ("#runn        al     hgem  drainw    berg    qbot  ")
-#unicode_line = line.encode('utf-8')
-#output_file.write(unicode_line)
+bodembestand = 'Bodemdata.txt'
+output_file = open(bestandspad+bodembestand, 'w')
+
 layer = iface.activeLayer()
 features = layer.selectedFeatures()
 for f in features:
@@ -82,8 +78,8 @@ for f in features:
 output_file.close()
 
 
-bodembestand = '/home/john/Documenten/FTM/HyGis/QGIS/Bodemdata.txt'
-dfBodem=pd.read_csv(bodembestand, header=None, delimiter =',', names = ['#runn', 'al', 'hgem', 'drainw', 'berg', 'qbot' ]) #names = ['#runn', 'al', 'hgem', 'drainw', 'berg', 'qbot' ]
+#bodembestand = 'Bodemdata.txt'
+dfBodem=pd.read_csv(bestandspad+bodembestand, header=None, delimiter =',', names = ['#runn', 'al', 'hgem', 'drainw', 'berg', 'qbot' ]) #names = ['#runn', 'al', 'hgem', 'drainw', 'berg', 'qbot' ]
 #print dfBodem #print was alleen om de zaak te testen
 
 array_drainweerstand = dfBodem['drainw'].values
@@ -91,26 +87,7 @@ array_hgem = dfBodem['hgem'].values
 array_bergingscoefficient = dfBodem['berg'].values
 array_qbot = dfBodem['qbot'].values
 
-# GHG en GLG uit textbestand halen Jvd: GHG en GLG moeten door dit programma worden berekend
-#fileinput = open('/home/john/Documenten/FTM/HyGis/QGIS/testgwlstatistics.txt', 'r')
-#fileinput.readline()
-#fileinput.readline()
-#for line in fileinput:
-#print fileinput.read(4),
-#fileinput.read(4),
-#GHG = fileinput.read(8)
-#fileinput.readline()
-#fileinput.readline()
-#fileinput.read(4),
-#GLG = fileinput.read(8)
-#fileinput.close()
 
-
-#fileinput = open('/home/john/Documenten/FTM/HyGis/QGIS/testgwlstatistics.txt', 'r')
-#print(fileinput.readline()),
-#print(fileinput.readline())
-#fileinput.readline()
-#fileinput.readline()
 
 array_grondwaterstand = np.zeros(shape = (11323), order='C')
 #print array_grondwaterstand #print was alleen om de zaak te test
@@ -127,15 +104,13 @@ dates = pd.date_range('19700101', periods=11323)
 dfGWS = pd.Series(array_grondwaterstand, index=dates)
 #print dfGWS #print was alleen om de zaak te testen
 
-GWSbestand_uit = '/home/john/Documenten/FTM/HyGis/QGIS/GWS_out.csv'
+GWSbestand_uit = 'GWS_out.csv'
 #GWSdates=dfMeteo['Dag'].combineAdd(dfGWS)
-dfGWS.to_csv(GWSbestand_uit,  index=True, sep=',', header=None)
+dfGWS.to_csv(bestandspad+GWSbestand_uit,  index=True, sep=',', header=None)
 pd.Series.plot(dfGWS, kind='line')
 ax = pylab.gca()
 ax.set_ylabel('$cm-mv$')
 
-pylab.savefig('/home/john/Documenten/FTM/HyGis/QGIS/Grondwaterstanden.png', bbox_inches='tight')
+pylab.savefig(bestandspad+'Grondwaterstanden.png', bbox_inches='tight')
 # without the line below, the figure won't show
 pylab.show()
-
-
