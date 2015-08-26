@@ -20,3 +20,12 @@ for i in [215, 225, 235, 240, 242, 249, 251, 257, 260, 265, 267, 269, 270, 273, 
 
     meteobestand_uit = 'Waterbalans_METEO'+str(i)+'.csv'
     dfmeteo_out.to_csv(meteobestand_uit,  index=True, sep=',', header=True)
+#plotje maken voor iedere dataset en opslaan
+
+    pd.DataFrame.plot(dfmeteo_out, kind='line')
+    ax = pylab.gca()
+    ax.set_ylabel('$x0.1 mm/dag$')
+
+    plotnaam = 'Neerslag-verdamping_METEO' + str(i) + '.png'
+    pylab.savefig(plotnaam, bbox_inches='tight')
+    pylab.close()
