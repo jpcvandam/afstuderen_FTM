@@ -15,24 +15,25 @@ bdag=11
 ejaar='2015'
 emaand='08'
 edag=bdag+10
-station = '277'
+#station = '277'
 
-url = 'http://www.knmi.nl/klimatologie/daggegevens/getdata_dag.cgi'
-values = {'stns' : 'station',
-          'byear' : 'bjaar',
-          'bmonth' : 'bmaand',
-          'bday' : 'bdag',
-          'eyear' : 'ejaar',
-          'emonth': 'emaand',
-          'eday' : 'edag',
-          'vars' : 'PRCP = DR:RH:EV24' }
+for i in ['277', '235', '280', '260']:
+    url = 'http://www.knmi.nl/klimatologie/daggegevens/getdata_dag.cgi'
+    values = {'stns' : 'i',
+              'byear' : 'bjaar',
+              'bmonth' : 'bmaand',
+              'bday' : 'bdag',
+              'eyear' : 'ejaar',
+              'emonth': 'emaand',
+              'eday' : 'edag',
+              'vars' : 'PRCP = DR:RH:EV24' }
 
-data = urllib.urlencode(values)
-req = urllib2.Request(url, data)
-response = urllib2.urlopen(req)
-the_page = response.read()
-print the_page
-meteobestandsnaam = 'METEO'+station+'.TXT'
-meteobestand = open(meteobestandsnaam, 'w')
-meteobestand.write(the_page)
-meteobestand.close()
+    data = urllib.urlencode(values)
+    req = urllib2.Request(url, data)
+    response = urllib2.urlopen(req)
+    the_page = response.read()
+    #print the_page
+    meteobestandsnaam = 'METEO'+i+'.TXT'
+    meteobestand = open(meteobestandsnaam, 'w')
+    meteobestand.write(the_page)
+    meteobestand.close()
