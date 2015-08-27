@@ -36,9 +36,12 @@ def cw(drainageweerstand, qbot, hgem):
 def gws_op_t(bergingscoefficient, drainageweerstand, ht_dt,  qbot, hgem, Pt) :
     ht = cw(drainageweerstand, qbot, hgem) + delta(bergingscoefficient, drainageweerstand) * (ht_dt - cw(drainageweerstand, qbot, hgem)) + omega(drainageweerstand, bergingscoefficient) * (Pt/10)
     if ht<0:
-        return(ht)
-    else:
-        return 0
+	ht = ht
+	Pt = Pt
+    else: 
+	ht =0
+	Pt = Pt/10
+    return ht, Pt	
     #return(ht)
 
 
@@ -74,21 +77,25 @@ array_qbot = dfBodem['qbot'].values
 #hgem', 'drainw', 'berg', 'qbot
 
 
-array_grondwaterstand = np.zeros(shape = (len(array_neerslagoverschot)), order='C')
-array_afvoer = np.zeros(shape = (len(array_neerslagoverschot)), order='C')
-#print array_grondwaterstand #print was alleen om de zaak te test
-for i in range(1,len(array_grondwaterstand)):
-     array_grondwaterstand[i] = gws_op_t(array_bergingscoefficient[0], array_drainweerstand[0], array_grondwaterstand[i-1], array_qbot[0], array_hgem[0], array_neerslagoverschot[i])
+array_grondwaterstand = np.zeros(shape = (2, len(array_neerslagoverschot)), order='C')
+#array_afvoer = np.zeros(shape = (len(array_neerslagoverschot)), order='C')
+print array_grondwaterstand #print was alleen om de zaak te test
+for i in range(1,len(array_neerslagoverschot)):
+    array_grondwaterstand[0,i] = gws_op_t(array_bergingscoefficient[0], array_drainweerstand[0], array_grondwaterstand[0, (i-1)], array_qbot[0], array_hgem[0], array_neerslagoverschot[i])[0]
+    array_grondwaterstand[1,i] = gws_op_t(array_bergingscoefficient[0], array_drainweerstand[0], array_grondwaterstand[0, (i-1)], array_qbot[0], array_hgem[0], array_neerslagoverschot[i])[1]
 
-for i in range(1,len(array_grondwaterstand)):
-   array_afvoer[i]=afvoer(array_grondwaterstand[i], array_neerslagoverschot[i])
+print array_grondwaterstand
+#for i in range(1,len(array_grondwaterstand)):
+   #array_afvoer[i]=afvoer(array_grondwaterstand[i], array_neerslagoverschot[i])
 #array_afvoer=afvoer(array_grondwaterstand, array_neerslagoverschot)
-print array_afvoer #print was alleen om de zaak te testen
+#print array_afvoer #print was alleen om de zaak te testen
 
 #print dfNettoNeerslag.ix[0, 'datum']
 startdatum = dfNettoNeerslag.ix[0, 'datum']
 dates = pd.date_range(startdatum, periods=len(array_neerslagoverschot))
-dfGWS = pd.Series(array_grondwaterstand, index=dates)
+dfGWS = pd.Series(array_grondwaterstand[0], index=dates)
+#dfafstroming = pd.Series(array_grondwaterstand[1], index=dates)
+#dfOutput = pd.concat([dfGWS, dfafstroming])
 #print dfGWS #print was alleen om de zaak te testen
 
 GWSbestand_uit = 'GWS_out.csv'
