@@ -10,22 +10,11 @@ import pylab
 import datetime
 import matplotlib.dates as mdates
 import datetime as dt
-from numpy.numarray.functions import value
-
-#functiedefinitie meteogegevens inladen
-def leesmeteo(meteobestand):
-    dfMeteo=pd.read_fwf(meteobestand, widths=[14,14,14,14,14], header = None, names = ['dag', 'maand' , 'jaar' ,'neerslag' , 'verdamping'], parse_dates={"Datetime" : [0,1,2]})
-    dfMeteo = dfMeteo.set_index('Datetime')
-    return dfMeteo
-
-
-#functiedefinitie rekenen
-#def waterbalans(dfMeteo.neerslag, dfMeteo.verdamping):
-#    dfMeteo.neerslagoverschot=dfMeteo.neerslag-dfMeteo.verdamping
-#    return dfMeteo.neerslagoverschot
 
 
 
+
+#functiedefinities rekenen
 
 #haal eerst de coordinaten op van de locatie waar de grondwaterstand berekend moet worden, hierbij gelijk de b1 en b2 waarden uit de Staringreeks, tevens c, dt [kan misschien door gebruiker ingesteld worden, anders default 1], ht_dt [moet dus de dag ervoor berekend worden], Pt uit de waterbalans database
 
@@ -45,7 +34,7 @@ def cw(drainageweerstand, qbot, hgem):
 
 
 def gws_op_t(bergingscoefficient, drainageweerstand, ht_dt,  qbot, hgem, Pt) :
-    ht = cw(drainageweerstand, qbot, hgem) + delta(bergingscoefficient, drainageweerstand) * (ht_dt - cw(drainageweerstand, qbot, hgem)) + omega(drainageweerstand, bergingscoefficient) * Pt
+    ht = cw(drainageweerstand, qbot, hgem) + delta(bergingscoefficient, drainageweerstand) * (ht_dt - cw(drainageweerstand, qbot, hgem)) + omega(drainageweerstand, bergingscoefficient) * (Pt/10)
     if ht<0:
         return(ht)
     else:
@@ -53,56 +42,24 @@ def gws_op_t(bergingscoefficient, drainageweerstand, ht_dt,  qbot, hgem, Pt) :
     #return(ht)
 
 
-def bovenmaaiveld(grondwaterstand):
-    if grondwaterstand<0:
-        return grondwaterstand
+def afvoer(grondwaterstand, neerslag): #geeft altijd 0 terug, omdat de gronwaterstand bij het maaiveld automatisch afgekapt wordt, die functie uit de grondwaterstandsdefinitie halen heeft geen zin, omdat dan doorgerekend wordt met een grondwaterstand boven maaiveld en dat klopt ook niet.
+    if grondwaterstand>0:
+        return (neerslag/10)
     else:
         return 0
 
 
-#print omega(1.0, 0.1, 0.2)
-#print delta(1.0, 0.2)
-#print gws_op_t(delta(1.0, 0.2), 125.0, 130.0, omega(1.0, 0.1, 0.2), 2.0)
-
-#functiedefinitie gegevens wegschrijven
-#het moet de oorspronkelijke datumlijst + het verschil tussen de kolommen 'neerslag' en 'verdamping' wegschrijven onder de naam neerslagoverschot
-#def schrijfmeteo(meteobestand_uit):
-#    dfMeteo.to_csv(meteobestand_uit, names=['datum', 'neerslag', 'verdamping'])
-    #return dfMeteo_uit
 
 #hier begint dan het programma
 
-meteobestand='METEO669.TXT'
-
-dfMeteo=pd.read_fwf(meteobestand, widths=[14,14,14,14,14], header = None, names = ['dag', 'maand' , 'jaar' ,'neerslag' , 'verdamping'], parse_dates={"Datetime" : [0,1,2]})
-dfMeteo = dfMeteo.set_index('Datetime')
-
-
-#print dfMeteo #print was alleen om de zaak te testen
-#print dfMeteo.info() #print is alleen om de zaak te testen
-aantal_regels = dfMeteo.count(axis=0)
-print aantal_regels
-
-#demonstratie hoe je een array maakt
-#arraypiet = dfMeteo['neerslag'].values
-#print arraypiet
-
-#pd.DataFrame.plot(dfMeteo, kind='line')
-#ax = pylab.gca()
-#ax.set_ylabel('$mm/dag$')
-
-#pylab.savefig('Neerslag+verdamping.png', bbox_inches='tight')
-# without the line below, the figure won't show
-#pylab.show()
+for i in [215]:
+    meteobestand_in = 'Waterbalans_METEO'+str(i)+'.csv'
+    dfNettoNeerslag = pd.read_csv(meteobestand_in, header=False, skiprows=1, names = ['datum', 'NN1', 'NN2' ], delimiter =',', parse_dates=[0])
 
 
-dfMeteo_out = pd.Series(dfMeteo.neerslag-dfMeteo.verdamping)
-#dfMeteo_out['neerslagoverschot']=dfMeteo.neerslag-dfMeteo.verdamping
-#print dfMeteo_out #print was alleen om de zaak te testen
-meteobestand_uit = 'Meteo_out.csv'
-dfMeteo_out.to_csv(meteobestand_uit,  index=True, sep=',', header=True)
+#print dfNettoNeerslag #print was alleen om de zaak te testen
 
-array_neerslagoverschot = dfMeteo_out.values
+array_neerslagoverschot = dfNettoNeerslag['NN1'].values
 #print array_neerslagoverschot #print was alleen om de zaak te testen
 #print dfMeteo.neerslagoverschot
 
@@ -117,17 +74,20 @@ array_qbot = dfBodem['qbot'].values
 #hgem', 'drainw', 'berg', 'qbot
 
 
-array_grondwaterstand = np.zeros(shape = (11323), order='C')
+array_grondwaterstand = np.zeros(shape = (len(array_neerslagoverschot)), order='C')
+array_afvoer = np.zeros(shape = (len(array_neerslagoverschot)), order='C')
 #print array_grondwaterstand #print was alleen om de zaak te test
 for i in range(1,len(array_grondwaterstand)):
      array_grondwaterstand[i] = gws_op_t(array_bergingscoefficient[0], array_drainweerstand[0], array_grondwaterstand[i-1], array_qbot[0], array_hgem[0], array_neerslagoverschot[i])
 
-#for i in range(1,len(array_grondwaterstand)):
-#   array_grondwaterstand[i]=bovenmaaiveld(array_grondwaterstand[i])
+for i in range(1,len(array_grondwaterstand)):
+   array_afvoer[i]=afvoer(array_grondwaterstand[i], array_neerslagoverschot[i])
+#array_afvoer=afvoer(array_grondwaterstand, array_neerslagoverschot)
+print array_afvoer #print was alleen om de zaak te testen
 
-#print array_grondwaterstand #print was alleen om de zaak te testen
-
-dates = pd.date_range('19700101', periods=11323)
+#print dfNettoNeerslag.ix[0, 'datum']
+startdatum = dfNettoNeerslag.ix[0, 'datum']
+dates = pd.date_range(startdatum, periods=len(array_neerslagoverschot))
 dfGWS = pd.Series(array_grondwaterstand, index=dates)
 #print dfGWS #print was alleen om de zaak te testen
 
@@ -140,4 +100,4 @@ ax.set_ylabel('$cm-mv$')
 
 pylab.savefig('Grondwaterstanden.png', bbox_inches='tight')
 # without the line below, the figure won't show
-pylab.show()
+pylab.close()
