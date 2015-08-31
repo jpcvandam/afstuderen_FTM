@@ -34,13 +34,13 @@ def cw(drainageweerstand, qbot, hgem):
 
 
 def gws_op_t(bergingscoefficient, drainageweerstand, ht_dt,  qbot, hgem, Pt) :
-    ht = cw(drainageweerstand, qbot, hgem) + delta(bergingscoefficient, drainageweerstand) * (ht_dt - cw(drainageweerstand, qbot, hgem)) + omega(drainageweerstand, bergingscoefficient) * (Pt/10)
+    ht = cw(drainageweerstand, qbot, hgem) + delta(bergingscoefficient, drainageweerstand) * (ht_dt - cw(drainageweerstand, qbot, hgem)) + omega(drainageweerstand, bergingscoefficient) * (Pt/100)
     if ht<0:
 	ht = ht
 	Pt = Pt
     else: 
 	ht =0
-	Pt = Pt/10
+	Pt = Pt/100
     return ht, Pt	
     #return(ht)
 
@@ -54,8 +54,9 @@ def afvoer(grondwaterstand, neerslag): #geeft altijd 0 terug, omdat de gronwater
 
 
 #hier begint dan het programma
+nummer_meteostation = 370
 
-for i in [215]:
+for i in [nummer_meteostation]:
     meteobestand_in = 'Waterbalans_METEO'+str(i)+'.csv'
     dfNettoNeerslag = pd.read_csv(meteobestand_in, header=False, skiprows=1, names = ['datum', 'NN1', 'NN2' ], delimiter =',', parse_dates=[0])
 
@@ -79,12 +80,12 @@ array_qbot = dfBodem['qbot'].values
 
 array_grondwaterstand = np.zeros(shape = (2, len(array_neerslagoverschot)), order='C')
 #array_afvoer = np.zeros(shape = (len(array_neerslagoverschot)), order='C')
-print array_grondwaterstand #print was alleen om de zaak te test
+#print array_grondwaterstand #print was alleen om de zaak te test
 for i in range(1,len(array_neerslagoverschot)):
     array_grondwaterstand[0,i] = gws_op_t(array_bergingscoefficient[0], array_drainweerstand[0], array_grondwaterstand[0, (i-1)], array_qbot[0], array_hgem[0], array_neerslagoverschot[i])[0]
     array_grondwaterstand[1,i] = gws_op_t(array_bergingscoefficient[0], array_drainweerstand[0], array_grondwaterstand[0, (i-1)], array_qbot[0], array_hgem[0], array_neerslagoverschot[i])[1]
 
-print array_grondwaterstand
+#print array_grondwaterstand
 #for i in range(1,len(array_grondwaterstand)):
    #array_afvoer[i]=afvoer(array_grondwaterstand[i], array_neerslagoverschot[i])
 #array_afvoer=afvoer(array_grondwaterstand, array_neerslagoverschot)
@@ -98,13 +99,13 @@ dfGWS = pd.Series(array_grondwaterstand[0], index=dates)
 #dfOutput = pd.concat([dfGWS, dfafstroming])
 #print dfGWS #print was alleen om de zaak te testen
 
-GWSbestand_uit = 'GWS_out.csv'
+GWSbestand_uit = 'GWS_out_'+str(nummer_meteostation)+'.csv'
 #GWSdates=dfMeteo['Dag'].combineAdd(dfGWS)
 dfGWS.to_csv(GWSbestand_uit,  index=True, sep=',', header=None)
 pd.Series.plot(dfGWS, kind='line')
 ax = pylab.gca()
 ax.set_ylabel('$cm-mv$')
 
-pylab.savefig('Grondwaterstanden.png', bbox_inches='tight')
+pylab.savefig('Grondwaterstanden_'+str(nummer_meteostation)+'.png', bbox_inches='tight')
 # without the line below, the figure won't show
 pylab.close()
