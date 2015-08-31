@@ -54,7 +54,7 @@ def afvoer(grondwaterstand, neerslag): #geeft altijd 0 terug, omdat de gronwater
 
 
 #hier begint dan het programma
-nummer_meteostation = 370
+nummer_meteostation = 310
 
 for i in [nummer_meteostation]:
     meteobestand_in = 'Waterbalans_METEO'+str(i)+'.csv'
@@ -85,27 +85,36 @@ for i in range(1,len(array_neerslagoverschot)):
     array_grondwaterstand[0,i] = gws_op_t(array_bergingscoefficient[0], array_drainweerstand[0], array_grondwaterstand[0, (i-1)], array_qbot[0], array_hgem[0], array_neerslagoverschot[i])[0]
     array_grondwaterstand[1,i] = gws_op_t(array_bergingscoefficient[0], array_drainweerstand[0], array_grondwaterstand[0, (i-1)], array_qbot[0], array_hgem[0], array_neerslagoverschot[i])[1]
 
-#print array_grondwaterstand
-#for i in range(1,len(array_grondwaterstand)):
-   #array_afvoer[i]=afvoer(array_grondwaterstand[i], array_neerslagoverschot[i])
-#array_afvoer=afvoer(array_grondwaterstand, array_neerslagoverschot)
-#print array_afvoer #print was alleen om de zaak te testen
 
+
+#functie voor glg
+
+#hieronder wordt het outputbestand met de grondwaterstanden en de oppervlakkige afstroming gemaakt
 #print dfNettoNeerslag.ix[0, 'datum']
 startdatum = dfNettoNeerslag.ix[0, 'datum']
 dates = pd.date_range(startdatum, periods=len(array_neerslagoverschot))
 dfGWS = pd.Series(array_grondwaterstand[0], index=dates)
-#dfafstroming = pd.Series(array_grondwaterstand[1], index=dates)
+serafstroming = pd.Series(array_grondwaterstand[1], index=dates)
+#print serafstroming
 #dfOutput = pd.concat([dfGWS, dfafstroming])
 #print dfGWS #print was alleen om de zaak te testen
 
+dfGrondwaterstanden = dfGWS.to_frame(name = 'Grondwaterstanden')
+#print dfGrondwaterstanden
+
+dfAfstroming = serafstroming.to_frame(name = 'Afstroming')
+
+dfOutput = pd.merge(dfGrondwaterstanden, dfAfstroming,how='inner', on=None, left_on=None, right_on=None, left_index=True, right_index=True)
+#print dfOutput
+
 GWSbestand_uit = 'GWS_out_'+str(nummer_meteostation)+'.csv'
-#GWSdates=dfMeteo['Dag'].combineAdd(dfGWS)
-dfGWS.to_csv(GWSbestand_uit,  index=True, sep=',', header=None)
+
+dfOutput.to_csv(GWSbestand_uit,  index=True, sep=',')
+
+#plotje maken van de grondwaterstanden en opslaan
 pd.Series.plot(dfGWS, kind='line')
 ax = pylab.gca()
 ax.set_ylabel('$cm-mv$')
-
 pylab.savefig('Grondwaterstanden_'+str(nummer_meteostation)+'.png', bbox_inches='tight')
-# without the line below, the figure won't show
 pylab.close()
+
