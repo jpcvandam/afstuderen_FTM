@@ -131,6 +131,8 @@ print dfGLG.mean()
 GLGS = dfGLG.nsmallest(25)
 print GLGS.mean()
 GLG = GLGS.mean()
+array_GLG = np.full((1, len(array_neerslagoverschot)), GLG, order='C')
+dfGLGs = pd.Series(array_GLG[0], index=dates)
 
 GLGbestand_uit = 'GLG_out_'+str(nummer_meteostation)+'.csv'
 dfGLG.to_csv(GLGbestand_uit,  index=True, sep=',')
@@ -157,6 +159,8 @@ print dfGHG.mean()
 GHGS = dfGHG.nlargest(25)
 print GHGS.mean()
 GHG = GHGS.mean()
+array_GHG = np.full((1, len(array_neerslagoverschot)), GHG, order='C')
+dfGHGs = pd.Series(array_GHG[0], index=dates)
 
 GHGbestand_uit = 'GHG_out_'+str(nummer_meteostation)+'.csv'
 dfGHG.to_csv(GHGbestand_uit,  index=True, sep=',')
@@ -169,8 +173,8 @@ dfGHG.to_csv(GHGbestand_uit,  index=True, sep=',')
 #plotje maken van de grondwaterstanden en opslaan
 # Create plots with pre-defined labels.
 pd.Series.plot(dfGWS, kind='line', label='Grondwaterstand')
-plt.plot(GHG, 'r', label='GHG')
-plt.plot(GLG, 'g', label='GLG')
+pd.Series.plot(dfGHGs, label='GHG')
+pd.Series.plot(dfGLGs, label='GLG')
 
 plt.legend(loc='lower center', shadow=True, fontsize='x-large')
 
