@@ -110,20 +110,6 @@ GWSbestand_uit = 'GWS_out_'+str(nummer_meteostation)+'.csv'
 dfOutput.to_csv(GWSbestand_uit,  index=True, sep=',')
 
 #berekening van GLG en GHG
-#print dfGWS.dt.day
-print dfGWS.nsmallest(25)
-print dfGWS.nlargest(25)
-print dfGrondwaterstanden.mean()
-
-#plotje maken van de grondwaterstanden en opslaan
-pd.Series.plot(dfGWS, kind='line')
-ax = pylab.gca()
-ax.set_ylabel('$cm-mv$')
-plt.xlabel('Tijd')
-plt.title('Grondwaterstanden')
-pylab.savefig('Grondwaterstanden_'+str(nummer_meteostation)+'.png', bbox_inches='tight')
-pylab.close()
-
 #for i in [4, 5, 6, 7, 8, 9]:
 #    dfGLG = dfGWS[((dfGWS.index.month == i) & (14 == dfGWS.index.day)  # 
 #                    | (dfGWS.index.month == i) & (dfGWS.index.day == 28))]  #
@@ -142,6 +128,9 @@ dfGLG = dfGWS[((dfGWS.index.month == 4) & (14 == dfGWS.index.day)  #
                 | (dfGWS.index.month == 9) & (dfGWS.index.day == 14)
                 | (dfGWS.index.month == 9) & (dfGWS.index.day == 28))]  #
 print dfGLG.mean()
+GLGS = dfGLG.nsmallest(25)
+print GLGS.mean()
+GLG = GLGS.mean()
 
 GLGbestand_uit = 'GLG_out_'+str(nummer_meteostation)+'.csv'
 dfGLG.to_csv(GLGbestand_uit,  index=True, sep=',')
@@ -165,6 +154,31 @@ dfGHG = dfGWS[((dfGWS.index.month == 10) & (14 == dfGWS.index.day)  #
                 | (dfGWS.index.month == 3) & (dfGWS.index.day == 14)
                 | (dfGWS.index.month == 3) & (dfGWS.index.day == 28))]  #
 print dfGHG.mean()
+GHGS = dfGHG.nlargest(25)
+print GHGS.mean()
+GHG = GHGS.mean()
 
 GHGbestand_uit = 'GHG_out_'+str(nummer_meteostation)+'.csv'
 dfGHG.to_csv(GHGbestand_uit,  index=True, sep=',')
+
+#een klein beetje statistiek om te testen
+#print dfGWS.nsmallest(25)
+#print dfGWS.nlargest(25)
+#print dfGrondwaterstanden.mean()
+
+#plotje maken van de grondwaterstanden en opslaan
+# Create plots with pre-defined labels.
+pd.Series.plot(dfGWS, kind='line', label='Grondwaterstand')
+plt.plot(GHG, 'r', label='GHG')
+plt.plot(GLG, 'g', label='GLG')
+
+plt.legend(loc='lower center', shadow=True, fontsize='x-large')
+
+#pd.Series.plot(dfGWS.mean(), kind='line')
+ax = pylab.gca()
+ax.set_ylabel('$cm-mv$')
+plt.xlabel('Tijd')
+plt.title('Tijdstijghoogtelijn')
+pylab.savefig('Grondwaterstanden_'+str(nummer_meteostation)+'.png', bbox_inches='tight')
+pylab.close()
+
