@@ -37,11 +37,11 @@ def gws_op_t(bergingscoefficient, drainageweerstand, ht_dt,  qbot, hgem, Pt) :
     ht = cw(drainageweerstand, qbot, hgem) + delta(bergingscoefficient, drainageweerstand) * (ht_dt - cw(drainageweerstand, qbot, hgem)) + omega(drainageweerstand, bergingscoefficient) * (Pt/100)
     if ht<0:
 	ht = ht
-	Pt = Pt
+	afstroming = 0
     else: 
 	ht =0
-	Pt = Pt/100
-    return ht, Pt	
+	afstroming = Pt/100
+    return ht, afstroming	
     #return(ht)
 
 
@@ -54,7 +54,7 @@ def afvoer(grondwaterstand, neerslag): #geeft altijd 0 terug, omdat de gronwater
 
 
 #hier begint dan het programma
-nummer_meteostation = 310
+nummer_meteostation = 323
 
 for i in [nummer_meteostation]:
     meteobestand_in = 'Waterbalans_METEO'+str(i)+'.csv'
@@ -87,7 +87,6 @@ for i in range(1,len(array_neerslagoverschot)):
 
 
 
-#functie voor glg
 
 #hieronder wordt het outputbestand met de grondwaterstanden en de oppervlakkige afstroming gemaakt
 #print dfNettoNeerslag.ix[0, 'datum']
@@ -96,7 +95,7 @@ dates = pd.date_range(startdatum, periods=len(array_neerslagoverschot))
 dfGWS = pd.Series(array_grondwaterstand[0], index=dates)
 serafstroming = pd.Series(array_grondwaterstand[1], index=dates)
 #print serafstroming
-#dfOutput = pd.concat([dfGWS, dfafstroming])
+
 #print dfGWS #print was alleen om de zaak te testen
 
 dfGrondwaterstanden = dfGWS.to_frame(name = 'Grondwaterstanden')
@@ -108,13 +107,29 @@ dfOutput = pd.merge(dfGrondwaterstanden, dfAfstroming,how='inner', on=None, left
 #print dfOutput
 
 GWSbestand_uit = 'GWS_out_'+str(nummer_meteostation)+'.csv'
-
 dfOutput.to_csv(GWSbestand_uit,  index=True, sep=',')
+
+#berekening van GLG en GHG
+#print dfGWS.dt.day
+print dfGWS.nsmallest(25)
+print dfGWS.nlargest(25)
+print dfGrondwaterstanden.mean()
 
 #plotje maken van de grondwaterstanden en opslaan
 pd.Series.plot(dfGWS, kind='line')
 ax = pylab.gca()
 ax.set_ylabel('$cm-mv$')
+plt.xlabel('Tijd')
+plt.title('Grondwaterstanden')
 pylab.savefig('Grondwaterstanden_'+str(nummer_meteostation)+'.png', bbox_inches='tight')
 pylab.close()
 
+for i in [4, 5, 6, 7, 8, 9]:
+    dfGLG = dfGWS[((dfGWS.index.month == i) & (14 == dfGWS.index.day)  # 
+                    | (dfGWS.index.month == i) & (dfGWS.index.day == 28))]  #
+print dfGLG.mean()
+
+for i in [10, 11, 12, 1, 2, 3]:
+    dfGHG = dfGWS[((dfGWS.index.month == i) & (14 == dfGWS.index.day)  # 
+                    | (dfGWS.index.month == i) & (dfGWS.index.day == 28))]  #
+print dfGHG.mean()
