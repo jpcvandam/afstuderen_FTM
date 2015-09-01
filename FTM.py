@@ -124,12 +124,47 @@ plt.title('Grondwaterstanden')
 pylab.savefig('Grondwaterstanden_'+str(nummer_meteostation)+'.png', bbox_inches='tight')
 pylab.close()
 
-for i in [4, 5, 6, 7, 8, 9]:
-    dfGLG = dfGWS[((dfGWS.index.month == i) & (14 == dfGWS.index.day)  # 
-                    | (dfGWS.index.month == i) & (dfGWS.index.day == 28))]  #
+#for i in [4, 5, 6, 7, 8, 9]:
+#    dfGLG = dfGWS[((dfGWS.index.month == i) & (14 == dfGWS.index.day)  # 
+#                    | (dfGWS.index.month == i) & (dfGWS.index.day == 28))]  #
+#    print dfGLG.mean()
+
+dfGLG = dfGWS[((dfGWS.index.month == 4) & (14 == dfGWS.index.day)  # 
+                | (dfGWS.index.month == 4) & (dfGWS.index.day == 28)
+                | (dfGWS.index.month == 5) & (dfGWS.index.day == 14)
+                | (dfGWS.index.month == 5) & (dfGWS.index.day == 28)
+                | (dfGWS.index.month == 6) & (dfGWS.index.day == 14)
+                | (dfGWS.index.month == 6) & (dfGWS.index.day == 28)
+                | (dfGWS.index.month == 7) & (dfGWS.index.day == 28)
+                | (dfGWS.index.month == 7) & (dfGWS.index.day == 14)
+                | (dfGWS.index.month == 8) & (dfGWS.index.day == 28)
+                | (dfGWS.index.month == 8) & (dfGWS.index.day == 14)
+                | (dfGWS.index.month == 9) & (dfGWS.index.day == 14)
+                | (dfGWS.index.month == 9) & (dfGWS.index.day == 28))]  #
 print dfGLG.mean()
 
-for i in [10, 11, 12, 1, 2, 3]:
-    dfGHG = dfGWS[((dfGWS.index.month == i) & (14 == dfGWS.index.day)  # 
-                    | (dfGWS.index.month == i) & (dfGWS.index.day == 28))]  #
+GLGbestand_uit = 'GLG_out_'+str(nummer_meteostation)+'.csv'
+dfGLG.to_csv(GLGbestand_uit,  index=True, sep=',')
+
+
+#for i in [10, 11, 12, 1, 2, 3]:
+#    dfGHG = dfGWS[((dfGWS.index.month == i) & (14 == dfGWS.index.day)  # 
+#                    | (dfGWS.index.month == i) & (dfGWS.index.day == 28))]  #
+#print dfGHG.mean()
+
+dfGHG = dfGWS[((dfGWS.index.month == 10) & (14 == dfGWS.index.day)  # 
+                | (dfGWS.index.month == 10) & (dfGWS.index.day == 28)
+                | (dfGWS.index.month == 11) & (dfGWS.index.day == 14)
+                | (dfGWS.index.month == 11) & (dfGWS.index.day == 28)
+                | (dfGWS.index.month == 12) & (dfGWS.index.day == 14)
+                | (dfGWS.index.month == 12) & (dfGWS.index.day == 28)
+                | (dfGWS.index.month == 1) & (dfGWS.index.day == 28)
+                | (dfGWS.index.month == 1) & (dfGWS.index.day == 14)
+                | (dfGWS.index.month == 2) & (dfGWS.index.day == 28)
+                | (dfGWS.index.month == 2) & (dfGWS.index.day == 14)
+                | (dfGWS.index.month == 3) & (dfGWS.index.day == 14)
+                | (dfGWS.index.month == 3) & (dfGWS.index.day == 28))]  #
 print dfGHG.mean()
+
+GHGbestand_uit = 'GHG_out_'+str(nummer_meteostation)+'.csv'
+dfGHG.to_csv(GHGbestand_uit,  index=True, sep=',')
