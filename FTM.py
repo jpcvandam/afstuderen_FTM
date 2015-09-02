@@ -13,7 +13,7 @@ import datetime as dt
 
 
 
-
+###################################################################
 #functiedefinities rekenen
 
 #haal eerst de coordinaten op van de locatie waar de grondwaterstand berekend moet worden, hierbij gelijk de b1 en b2 waarden uit de Staringreeks, tevens c, dt [kan misschien door gebruiker ingesteld worden, anders default 1], ht_dt [moet dus de dag ervoor berekend worden], Pt uit de waterbalans database
@@ -52,9 +52,9 @@ def afvoer(grondwaterstand, neerslag): #geeft altijd 0 terug, omdat de gronwater
         return 0
 
 
-
+###################################################################
 #hier begint dan het programma
-nummer_meteostation = 323
+nummer_meteostation = 215
 
 for i in [nummer_meteostation]:
     meteobestand_in = 'Waterbalans_METEO'+str(i)+'.csv'
@@ -86,7 +86,7 @@ for i in range(1,len(array_neerslagoverschot)):
     array_grondwaterstand[1,i] = gws_op_t(array_bergingscoefficient[0], array_drainweerstand[0], array_grondwaterstand[0, (i-1)], array_qbot[0], array_hgem[0], array_neerslagoverschot[i])[1]
 
 
-
+###################################################################
 
 #hieronder wordt het outputbestand met de grondwaterstanden en de oppervlakkige afstroming gemaakt
 #print dfNettoNeerslag.ix[0, 'datum']
@@ -108,13 +108,14 @@ dfOutput = pd.merge(dfGrondwaterstanden, dfAfstroming,how='inner', on=None, left
 
 GWSbestand_uit = 'GWS_out_'+str(nummer_meteostation)+'.csv'
 dfOutput.to_csv(GWSbestand_uit,  index=True, sep=',')
-
+###################################################################
 #berekening van GLG en GHG
 #for i in [4, 5, 6, 7, 8, 9]:
 #    dfGLG = dfGWS[((dfGWS.index.month == i) & (14 == dfGWS.index.day)  # 
 #                    | (dfGWS.index.month == i) & (dfGWS.index.day == 28))]  #
 #    print dfGLG.mean()
-
+###################################################################
+#GLG uit het dataframe dfGWS halen
 dfGLG = dfGWS[((dfGWS.index.month == 4) & (14 == dfGWS.index.day)  # 
                 | (dfGWS.index.month == 4) & (dfGWS.index.day == 28)
                 | (dfGWS.index.month == 5) & (dfGWS.index.day == 14)
@@ -128,15 +129,25 @@ dfGLG = dfGWS[((dfGWS.index.month == 4) & (14 == dfGWS.index.day)  #
                 | (dfGWS.index.month == 9) & (dfGWS.index.day == 14)
                 | (dfGWS.index.month == 9) & (dfGWS.index.day == 28))]  #
 print dfGLG.mean()
-GLGS = dfGLG.nsmallest(25)
-print GLGS.mean()
-GLG = GLGS.mean()
-array_GLG = np.full((1, len(array_neerslagoverschot)), GLG, order='C')
-dfGLGs = pd.Series(array_GLG[0], index=dates)
+#GLGS = dfGLG.nsmallest(25)
+
+grouped_l = dfGLG.groupby(lambda x: x.year)
+for year, group in grouped_l:
+    print year
+    print group
+print grouped_l.nsmallest(3)
+extremen_l = grouped_l.nsmallest(3).to_frame(name='extremen_l')
+print extremen_l.mean()
+
+#print GLGS.mean()
+GLG = extremen_l.mean()
+array_GLG = np.full((1, len(array_neerslagoverschot)), GLG, order='C') #maak een array met de uiteindelijke GLG om die later te kunnen plotten
+dfGLGs = pd.Series(array_GLG[0], index=dates) #array converteren naar pandas dataframe, omdat dat makkelijker plot
 
 GLGbestand_uit = 'GLG_out_'+str(nummer_meteostation)+'.csv'
 dfGLG.to_csv(GLGbestand_uit,  index=True, sep=',')
-
+###################################################################
+#GLG uit het dataframe dfGWS halen
 
 #for i in [10, 11, 12, 1, 2, 3]:
 #    dfGHG = dfGWS[((dfGWS.index.month == i) & (14 == dfGWS.index.day)  # 
@@ -155,28 +166,69 @@ dfGHG = dfGWS[((dfGWS.index.month == 10) & (14 == dfGWS.index.day)  #
                 | (dfGWS.index.month == 2) & (dfGWS.index.day == 14)
                 | (dfGWS.index.month == 3) & (dfGWS.index.day == 14)
                 | (dfGWS.index.month == 3) & (dfGWS.index.day == 28))]  #
+
 print dfGHG.mean()
-GHGS = dfGHG.nlargest(25)
-print GHGS.mean()
-GHG = GHGS.mean()
-array_GHG = np.full((1, len(array_neerslagoverschot)), GHG, order='C')
-dfGHGs = pd.Series(array_GHG[0], index=dates)
+#waarschijnlijk nu eerst een dataframe maken met pandas, het is anders een array die pandas niet snapt
+GHGS = dfGHG.to_frame(name='Wintermetingen')
+
+###################################################################
+
+#dfGHGS2 = dfGHG.to_frame(name='Wintermetingen')
+
+#print GHGS[(GHGS['Wintermetingen'].index.year.max(axis=0))]
+#print GHGS.size/12*3
+
+#print arie
+#print GHGS.index.freq #doet wel iets, maar niet iets waar ik op zit te wachten
+#print GHGS
+
+
+print GHGS
+#for i in range(0, (GHGS.size)):
+#for j in range(1971, 2015):
+ #   GHGS2 = dfGHG[(dfGHG.index.year == j)].nlargest(3) #hier zit het probleem
+  #  print GHGS2
+   # dfGHGS1 = GHGS2.to_frame(name='extremen')
+    
+    #dfGHGS2.join(dfGHGS1, sort=True)
+    #print dfGHGS1
+    #print dfGHGS2
+    #pd.merge(GHGS, dfGHGS2)
+#    arie[i]=GHGS['dunner'].values
+grouped = dfGHG.groupby(lambda x: x.year)
+for year, group in grouped:
+    print year
+    print group
+print grouped.nlargest(3)
+extremen = grouped.nlargest(3).to_frame(name='extremen')
+print extremen.mean()
+
+#print GHGS#['2009']#.nlargest(3)
+print GHGS.size
+print GHGS['Wintermetingen'].mean()
+
+###################################################################
+
+GHG = extremen.mean()
+
+array_GHG = np.full((1, len(array_neerslagoverschot)), GHG, order='C') #maak een array met de uiteindelijke GHG om die later te kunnen plotten
+dfGHGs = pd.Series(array_GHG[0], index=dates) #array converteren naar pandas dataframe, omdat dat makkelijker plot
 
 GHGbestand_uit = 'GHG_out_'+str(nummer_meteostation)+'.csv'
-dfGHG.to_csv(GHGbestand_uit,  index=True, sep=',')
-
+GHGS.to_csv(GHGbestand_uit,  index=True, sep=',')
+###################################################################
 #een klein beetje statistiek om te testen
 #print dfGWS.nsmallest(25)
 #print dfGWS.nlargest(25)
 #print dfGrondwaterstanden.mean()
-
+###################################################################
 #plotje maken van de grondwaterstanden en opslaan
 # Create plots with pre-defined labels.
 pd.Series.plot(dfGWS, kind='line', label='Grondwaterstand')
 pd.Series.plot(dfGHGs, label='GHG')
 pd.Series.plot(dfGLGs, label='GLG')
 
-plt.legend(loc='lower center', shadow=True, fontsize='x-large')
+plt.legend(loc='upper center', shadow=True, fontsize='x-large')
 
 #pd.Series.plot(dfGWS.mean(), kind='line')
 ax = pylab.gca()
