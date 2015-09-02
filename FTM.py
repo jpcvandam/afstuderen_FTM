@@ -128,16 +128,16 @@ dfGLG = dfGWS[((dfGWS.index.month == 4) & (14 == dfGWS.index.day)  #
                 | (dfGWS.index.month == 8) & (dfGWS.index.day == 14)
                 | (dfGWS.index.month == 9) & (dfGWS.index.day == 14)
                 | (dfGWS.index.month == 9) & (dfGWS.index.day == 28))]  #
-print dfGLG.mean()
+#print dfGLG.mean()
 
 
 grouped_l = dfGLG.groupby(lambda x: x.year)
-for year, group in grouped_l:
-    print year
-    print group
-print grouped_l.nsmallest(3)
+#for year, group in grouped_l:
+#    print year
+#    print group
+#print grouped_l.nsmallest(3)
 extremen_l = grouped_l.nsmallest(3).to_frame(name='extremen_l')
-print extremen_l.mean()
+#print extremen_l.mean()
 
 
 GLG = extremen_l.mean()
@@ -167,9 +167,9 @@ dfGHG = dfGWS[((dfGWS.index.month == 10) & (14 == dfGWS.index.day)  #
                 | (dfGWS.index.month == 3) & (dfGWS.index.day == 14)
                 | (dfGWS.index.month == 3) & (dfGWS.index.day == 28))]  #
 
-print dfGHG.mean()
+#print dfGHG.mean()
 #waarschijnlijk nu eerst een dataframe maken met pandas, het is anders een array die pandas niet snapt
-GHGS = dfGHG.to_frame(name='Wintermetingen')
+#GHGS = dfGHG.to_frame(name='Wintermetingen')
 
 ###################################################################
 
@@ -177,19 +177,19 @@ GHGS = dfGHG.to_frame(name='Wintermetingen')
 #print GHGS.index.freq #doet wel iets, maar niet iets waar ik op zit te wachten
 
 
-print GHGS
+#print GHGS
 
 grouped_h = dfGHG.groupby(lambda x: x.year)
-for year, group in grouped_h:
-    print year
-    print group
-print grouped_h.nlargest(3)
+#for year, group in grouped_h:
+#    print year
+#    print group
+#print grouped_h.nlargest(3)
 extremen = grouped_h.nlargest(3).to_frame(name='extremen')
-print extremen.mean()
+#print extremen.mean()
 
 #print GHGS#['2009']#.nlargest(3)
-print GHGS.size
-print GHGS['Wintermetingen'].mean()
+#print GHGS.size
+#print GHGS['Wintermetingen'].mean()
 
 ###################################################################
 
@@ -199,7 +199,7 @@ array_GHG = np.full((1, len(array_neerslagoverschot)), GHG, order='C') #maak een
 dfGHGs = pd.Series(array_GHG[0], index=dates) #array converteren naar pandas dataframe, omdat dat makkelijker plot
 
 GHGbestand_uit = 'GHG_out_'+str(nummer_meteostation)+'.csv'
-GHGS.to_csv(GHGbestand_uit,  index=True, sep=',')
+dfGHGs.to_csv(GHGbestand_uit,  index=True, sep=',')
 ###################################################################
 #een klein beetje statistiek om te testen
 #print dfGWS.nsmallest(25)
@@ -221,4 +221,3 @@ plt.xlabel('Tijd')
 plt.title('Tijdstijghoogtelijn')
 pylab.savefig('Grondwaterstanden_'+str(nummer_meteostation)+'.png', bbox_inches='tight')
 pylab.close()
-
