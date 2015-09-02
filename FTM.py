@@ -54,7 +54,7 @@ def afvoer(grondwaterstand, neerslag): #geeft altijd 0 terug, omdat de gronwater
 
 ###################################################################
 #hier begint dan het programma
-nummer_meteostation = 215
+nummer_meteostation = 286
 
 for i in [nummer_meteostation]:
     meteobestand_in = 'Waterbalans_METEO'+str(i)+'.csv'
@@ -129,7 +129,7 @@ dfGLG = dfGWS[((dfGWS.index.month == 4) & (14 == dfGWS.index.day)  #
                 | (dfGWS.index.month == 9) & (dfGWS.index.day == 14)
                 | (dfGWS.index.month == 9) & (dfGWS.index.day == 28))]  #
 print dfGLG.mean()
-#GLGS = dfGLG.nsmallest(25)
+
 
 grouped_l = dfGLG.groupby(lambda x: x.year)
 for year, group in grouped_l:
@@ -139,7 +139,7 @@ print grouped_l.nsmallest(3)
 extremen_l = grouped_l.nsmallest(3).to_frame(name='extremen_l')
 print extremen_l.mean()
 
-#print GLGS.mean()
+
 GLG = extremen_l.mean()
 array_GLG = np.full((1, len(array_neerslagoverschot)), GLG, order='C') #maak een array met de uiteindelijke GLG om die later te kunnen plotten
 dfGLGs = pd.Series(array_GLG[0], index=dates) #array converteren naar pandas dataframe, omdat dat makkelijker plot
@@ -173,34 +173,18 @@ GHGS = dfGHG.to_frame(name='Wintermetingen')
 
 ###################################################################
 
-#dfGHGS2 = dfGHG.to_frame(name='Wintermetingen')
 
-#print GHGS[(GHGS['Wintermetingen'].index.year.max(axis=0))]
-#print GHGS.size/12*3
-
-#print arie
 #print GHGS.index.freq #doet wel iets, maar niet iets waar ik op zit te wachten
-#print GHGS
 
 
 print GHGS
-#for i in range(0, (GHGS.size)):
-#for j in range(1971, 2015):
- #   GHGS2 = dfGHG[(dfGHG.index.year == j)].nlargest(3) #hier zit het probleem
-  #  print GHGS2
-   # dfGHGS1 = GHGS2.to_frame(name='extremen')
-    
-    #dfGHGS2.join(dfGHGS1, sort=True)
-    #print dfGHGS1
-    #print dfGHGS2
-    #pd.merge(GHGS, dfGHGS2)
-#    arie[i]=GHGS['dunner'].values
-grouped = dfGHG.groupby(lambda x: x.year)
-for year, group in grouped:
+
+grouped_h = dfGHG.groupby(lambda x: x.year)
+for year, group in grouped_h:
     print year
     print group
-print grouped.nlargest(3)
-extremen = grouped.nlargest(3).to_frame(name='extremen')
+print grouped_h.nlargest(3)
+extremen = grouped_h.nlargest(3).to_frame(name='extremen')
 print extremen.mean()
 
 #print GHGS#['2009']#.nlargest(3)
